@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import publicRoutes from "../../constants/public-routes";
 import { useGetCurrentUser } from "../../hooks/useGetCurrentUser";
+import { authenticatedVar } from "../../constants/authenticated";
 
 interface GuardProps {
   children: JSX.Element;
@@ -7,6 +9,12 @@ interface GuardProps {
 
 const Guard = ({ children }: GuardProps) => {
   const { data: user } = useGetCurrentUser();
+
+  useEffect(() => {
+    if (user) {
+      authenticatedVar(true);
+    }
+  }, [user]);
 
   return (
     <>
