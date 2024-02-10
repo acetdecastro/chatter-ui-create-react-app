@@ -15,6 +15,7 @@ import Snackbar from "./components/snackbar/Snackbar";
 import ChatList from "./components/chat-list/ChatList";
 import { usePath } from "./hooks/usePath";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const darkTheme = createTheme({
   palette: {
     mode: "dark",

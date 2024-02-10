@@ -12,6 +12,7 @@ interface GuardProps {
 
 const Guard = ({ children }: GuardProps) => {
   const { data: user, error } = useGetCurrentUser();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { path } = usePath();
 
   useEffect(() => {

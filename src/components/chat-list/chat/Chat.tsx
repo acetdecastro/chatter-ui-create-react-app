@@ -15,6 +15,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { useEffect, useRef, useState } from "react";
 import { useCreateMessage } from "../../../hooks/useCreateMessage";
 import { useGetMessages } from "../../../hooks/useGetMessages";
+import { useMessageCreated } from "../../../hooks/useMessageCreated";
 
 const Chat = () => {
   const params = useParams();
@@ -25,6 +26,9 @@ const Chat = () => {
   const { data: messages } = useGetMessages({ chatId });
   const divRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
+  const { data: latestMessage } = useMessageCreated({ chatId });
+
+  console.log(latestMessage);
 
   const scrollToBottom = () => divRef.current?.scrollIntoView();
 
@@ -46,7 +50,12 @@ const Chat = () => {
       <h1 className="">{data?.chat.name}</h1>
       <Box sx={{ maxHeight: "70vh", overflow: "auto" }}>
         {messages?.messages.map((message) => (
-          <Grid container alignItems="center" marginBottom="1rem">
+          <Grid
+            container
+            alignItems="center"
+            marginBottom="1rem"
+            key={message._id}
+          >
             <Grid item xs={2} lg={1}>
               <Avatar src="" sx={{ width: 52, height: 52 }} />
             </Grid>

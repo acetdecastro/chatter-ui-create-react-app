@@ -1,5 +1,4 @@
-import { gql, useMutation } from "@apollo/client";
-import { User } from "../models/User";
+import { useMutation } from "@apollo/client";
 import { graphql } from "../gql";
 
 // interface CreateUserInput {
