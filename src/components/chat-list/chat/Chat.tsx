@@ -16,21 +16,40 @@ import { useEffect, useRef, useState } from "react";
 import { useCreateMessage } from "../../../hooks/useCreateMessage";
 import { useGetMessages } from "../../../hooks/useGetMessages";
 import { useMessageCreated } from "../../../hooks/useMessageCreated";
+import { Message } from "../../../gql/graphql";
 
 const Chat = () => {
   const params = useParams();
   const chatId = params._id!;
   const { data } = useGetChat({ _id: chatId });
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [createMessage] = useCreateMessage(chatId);
-  const { data: messages } = useGetMessages({ chatId });
+  const { data: existingMessages } = useGetMessages({ chatId });
   const divRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
   const { data: latestMessage } = useMessageCreated({ chatId });
 
-  console.log(latestMessage);
-
   const scrollToBottom = () => divRef.current?.scrollIntoView();
+
+  // Populate messages state on mount
+  useEffect(() => {
+    if (existingMessages) {
+      setMessages(existingMessages.messages);
+    }
+  }, [existingMessages]);
+
+  // Update messages state when latest message
+  useEffect(() => {
+    const existingLatestMessageId = messages[messages.length - 1]?._id;
+    // Add latest message to the messages state
+    if (
+      latestMessage?.messageCreated &&
+      latestMessage.messageCreated._id !== existingLatestMessageId
+    ) {
+      setMessages([...messages, latestMessage.messageCreated]);
+    }
+  }, [latestMessage, messages]);
 
   useEffect(() => {
     setMessage("");
@@ -49,30 +68,36 @@ const Chat = () => {
     <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
       <h1 className="">{data?.chat.name}</h1>
       <Box sx={{ maxHeight: "70vh", overflow: "auto" }}>
-        {messages?.messages.map((message) => (
-          <Grid
-            container
-            alignItems="center"
-            marginBottom="1rem"
-            key={message._id}
-          >
-            <Grid item xs={2} lg={1}>
-              <Avatar src="" sx={{ width: 52, height: 52 }} />
-            </Grid>
-            <Grid item xs={10} lg={11}>
-              <Stack>
-                <Paper sx={{ width: "fit-content" }}>
-                  <Typography sx={{ padding: "0.9rem" }}>
-                    {message.content}
+        {[...messages]
+          .sort(
+            (messageA, messageB) =>
+              new Date(messageA.createdAt).getTime() -
+              new Date(messageB.createdAt).getTime()
+          )
+          .map((message) => (
+            <Grid
+              container
+              alignItems="center"
+              marginBottom="1rem"
+              key={message._id}
+            >
+              <Grid item xs={2} lg={1}>
+                <Avatar src="" sx={{ width: 52, height: 52 }} />
+              </Grid>
+              <Grid item xs={10} lg={11}>
+                <Stack>
+                  <Paper sx={{ width: "fit-content" }}>
+                    <Typography sx={{ padding: "0.9rem" }}>
+                      {message.content}
+                    </Typography>
+                  </Paper>
+                  <Typography variant="caption" sx={{ marginLeft: "0.25rem" }}>
+                    {new Date(message.createdAt).toLocaleTimeString()}
                   </Typography>
-                </Paper>
-                <Typography variant="caption" sx={{ marginLeft: "0.25rem" }}>
-                  {new Date(message.createdAt).toLocaleTimeString()}
-                </Typography>
-              </Stack>
+                </Stack>
+              </Grid>
             </Grid>
-          </Grid>
-        ))}
+          ))}
         <div ref={divRef}></div>
       </Box>
       <Paper
